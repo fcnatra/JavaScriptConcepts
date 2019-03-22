@@ -1,0 +1,79 @@
+<html>
+    <body>
+        <script>
+            /*
+                JAVASCRIPT DEMO
+
+                Closures
+                Functional programming - https://medium.freecodecamp.org/functional-programming-in-js-with-practical-examples-part-1-87c2b0dbc276
+                Function composition
+                Prototype chain
+             */
+
+            var bodyPrinter = getBodyPrinter();
+
+            /*-----------------*/
+            bodyPrinter.print('--- Closures example ---')
+            function contextFunction(printer) {
+                var internalVariable = 'a private variable';
+                function internalFunction() {
+                    if (printer instanceof PrintingDevice)
+                        printer.print('this is an intenal function showing ' + internalVariable);
+                }
+
+                return internalFunction;
+            }
+
+            var closureFunction = contextFunction(bodyPrinter);
+            closureFunction();
+            /*-----------------*/
+
+            /*-----------------*/
+            bodyPrinter.print('<br/>--- Function composition example ---')
+            function functionComposition(printer) {
+                const tag = t => contents => '<' + t + '>' + contents + '</' + t + '>';
+                var ul = tag('ul');
+                var li = tag('li');
+                var liItems = items => items.map(li).join('');
+
+                var boldText = tag('b')('this is bold!');
+                var hyperlink = tag('a href="https://www.github.com/fcnatra"')('go to GitHub');
+                var list = ul(liItems(['item1', 'item2']));
+
+                if (printer instanceof PrintingDevice) {
+                    printer.print(boldText);
+                    printer.print(hyperlink);
+                    printer.print(list);
+                }
+            }
+
+            functionComposition(bodyPrinter);
+            /*-----------------*/
+
+
+
+            /* Tools */
+            function PrintingDevice() {
+                this.print = function (textToPrint) { }
+            }
+
+            function getBodyPrinter() {
+                var device = new PrintingDevice();
+                device.print = function (textToPrint) {
+                    document.body.innerHTML += textToPrint + '<br/>';
+                }
+
+                return device;
+            }
+
+            function getConsolePrinter() {
+                var device = new PrintingDevice();
+                device.print = function (textToPrint) {
+                    console.log(textToPrint);
+                }
+
+                return device;
+            }
+        </script>
+    </body>
+</html>
