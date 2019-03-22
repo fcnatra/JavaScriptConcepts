@@ -10,28 +10,52 @@
                 Prototype chain
              */
 
-            var bodyPrinter = getBodyPrinter();
+            /* Tools */
+            var Logger = function () { }
+            Logger.prototype.constructor = Logger;
+            Logger.prototype.log = function (message) { }
+
+            function getBodyLogger() {
+                function bodyLogger() { }
+                bodyLogger.prototype = new Logger();
+                bodyLogger.prototype.log = function (message) {
+                    document.body.innerHTML += message + '<br/>';
+                }
+                return new bodyLogger();
+            }
+
+            function getConsoleLogger() {
+                function consoleLogger() { }
+                consoleLogger.prototype = new Logger();
+                consoleLogger.prototype.log = function (message) {
+                    console.log(message);
+                }
+            }
+
+            var logger = getBodyLogger();
 
             /*-----------------*/
-            bodyPrinter.print('--- Closures example ---')
-            function contextFunction(printer) {
+            logger.log('--- Closures example ---')
+            var closureFunction = contextFunction(logger);
+            closureFunction();
+
+            function contextFunction(logger) {
                 var internalVariable = 'a private variable';
                 function internalFunction() {
-                    if (printer instanceof PrintingDevice)
-                        printer.print('this is an intenal function showing ' + internalVariable);
+                    if (Logger.prototype.isPrototypeOf(logger))
+                        logger.log('this is an intenal function showing ' + internalVariable);
                 }
 
                 return internalFunction;
             }
-
-            var closureFunction = contextFunction(bodyPrinter);
-            closureFunction();
             /*-----------------*/
 
             /*-----------------*/
-            bodyPrinter.print('<br/>--- Function composition example ---')
-            function functionComposition(printer) {
-                const tag = t => contents => '<' + t + '>' + contents + '</' + t + '>';
+            logger.log('<br/>--- Function composition example ---')
+            functionComposition(logger);
+
+            function functionComposition(logger) {
+                const tag = tagType => tagContent => '<' + tagType + '>' + tagContent + '</' + tagType + '>';
                 var ul = tag('ul');
                 var li = tag('li');
                 var liItems = items => items.map(li).join('');
@@ -40,40 +64,18 @@
                 var hyperlink = tag('a href="https://www.github.com/fcnatra"')('go to GitHub');
                 var list = ul(liItems(['item1', 'item2']));
 
-                if (printer instanceof PrintingDevice) {
-                    printer.print(boldText);
-                    printer.print(hyperlink);
-                    printer.print(list);
+                if (Logger.prototype.isPrototypeOf(logger)) {
+                    logger.log(boldText);
+                    logger.log(hyperlink);
+                    logger.log(list);
                 }
             }
-
-            functionComposition(bodyPrinter);
             /*-----------------*/
 
+            /*-----------------*/
+            logger.log('--- Prototype chain ---')
+            logger.log('Is Logger the prototype of the logger instance?: ' + Logger.prototype.isPrototypeOf(logger));
 
-
-            /* Tools */
-            function PrintingDevice() {
-                this.print = function (textToPrint) { }
-            }
-
-            function getBodyPrinter() {
-                var device = new PrintingDevice();
-                device.print = function (textToPrint) {
-                    document.body.innerHTML += textToPrint + '<br/>';
-                }
-
-                return device;
-            }
-
-            function getConsolePrinter() {
-                var device = new PrintingDevice();
-                device.print = function (textToPrint) {
-                    console.log(textToPrint);
-                }
-
-                return device;
-            }
         </script>
     </body>
 </html>
